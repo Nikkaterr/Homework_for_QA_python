@@ -38,6 +38,3 @@ with open("result.json", "w") as f:
     f.write(s)
     f.close()
 
-
-
-
