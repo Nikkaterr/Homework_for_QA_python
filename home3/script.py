@@ -51,7 +51,7 @@ for i in range(len(user_and_books)):
     j = 0
     while i + j < (len(books)):
         list_books.append(books[i + j])
-        j = j + 29
+        j = j + len(user_and_books)
     for w in range(len(list_books)):
         user_and_books[i].setdefault("books", []).append(dict(zip(header, list_books[w])))
     list_books.clear()
