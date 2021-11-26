@@ -131,3 +131,7 @@ dmypy.json
 .venv/
 .home4/pytest_cache/
 .pytest_cache
+.Homework1/
+.home2/
+.home3/
+
