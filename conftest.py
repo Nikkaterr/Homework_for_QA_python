@@ -2,7 +2,6 @@ import pytest
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.wait import WebDriverWait
 
 
 def pytest_addoption(parser):
@@ -24,6 +23,11 @@ def pytest_addoption(parser):
         default="C:/Users/katus/Downloads/drivers",
         help="Path for local windows"
     )
+    parser.addoption(
+        "--tolerance",
+        type=int,
+        default=3
+    )
 
 
 @pytest.fixture
@@ -33,6 +37,7 @@ def browser(request):
     url = request.config.getoption("--url")
     drivers = request.config.getoption("--drivers")
     service = Service(executable_path=drivers + "/chromedriver.exe")
+    tolerance = request.config.getoption("--tolerance")
 
     if browser == "chrome":
         # В selenium 4 рекомендуют использование такого подхода
@@ -44,17 +49,15 @@ def browser(request):
     elif browser == "yandex":
         driver = webdriver.Chrome(service=service)
 
+    def open(path=""):
+        return driver.get(url + path)
+
     driver.maximize_window()
+
+    driver.open = open
+    driver.open()
+    driver.t = tolerance
 
     request.addfinalizer(driver.close)
 
-    driver.get(url)
-    driver.url = url
-
     return driver
-
-
-@pytest.fixture
-def wait(browser):
-    time_wait = WebDriverWait(browser, 3)
-    return time_wait
