@@ -6,6 +6,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 
 class BasePage:
+    LOGO_OPENCART = (By.ID, "logo")
+
     def __init__(self, browser):
         self.browser = browser
 
@@ -21,3 +23,7 @@ class BasePage:
     def _click(self, locator: tuple):
         element = self._element(locator)
         ActionChains(self.browser).pause(0.10).move_to_element(element).click(element).perform()
+
+    def _waiting_logo_opencart(self):
+        self._verify_element_presence(self.LOGO_OPENCART)
+        return self
