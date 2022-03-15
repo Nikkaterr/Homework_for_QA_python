@@ -7,12 +7,13 @@ import os
 
 
 def pars_log(filename):
-    dict_ip = defaultdict(
-        lambda: {"GET": 0, "POST": 0, "PUT": 0, "DELETE": 0, "HEAD": 0}
+    dict_method = defaultdict(
+        lambda: {"GET": 0, "POST": 0, "PUT": 0, "DELETE": 0, "HEAD": 0, "OPTIONS": 0, "CONNECT": 0, "TRACE": 0, "PATCH": 0}
     )
     dict_time = defaultdict(
         lambda: {"time": "", "ip": "", "method": "", "url": "", "date": ""}
     )
+    dict_ip = {}
     idx = 0
     with open(filename) as file:
 
@@ -22,15 +23,19 @@ def pars_log(filename):
             date_match = re.search(r"\d{1,2}\S\w{3}\S\d{4}\S\d{2}\S\d{2}\S\d{2}", line)
             url_match = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
                                    line)
+            method = re.search(r"\] \"(POST|GET|PUT|DELETE|HEAD|OPTIONS|CONNECT|TRACE|PATCH)", line)
+            if method is not None:
+                dict_method["total"][method.group(1)] += 1
             if ip_match is not None:
                 ip = ip_match.group()
-                method = re.search(r"\] \"(POST|GET|PUT|DELETE|HEAD)", line)
-                if method is not None:
-                    dict_ip[ip][method.group(1)] += 1
+                if ip in dict_ip.keys():
+                    dict_ip[ip] += 1
+                else:
+                    dict_ip[ip] = 1
             if time_match is not None:
                 dict_time[idx]["time"] = time_match.group()
                 if ip_match is not None:
-                    dict_time[idx]["ip"] = ip
+                    dict_time[idx]["ip"] = ip_match.group()
                 else:
                     dict_time[idx]["ip"] = "-"
                 if method is not None:
@@ -44,16 +49,7 @@ def pars_log(filename):
                 dict_time[idx]["date"] = date_match.group()
             idx += 1
 
-    top_ip = {}
-
-    for key in dict_ip:
-        count = 0
-        ip = dict_ip[key]
-        for method in ip:
-            count += ip[method]
-        top_ip[key] = count
-
-    c_ip = Counter(top_ip)
+    c_ip = Counter(dict_ip)
     top_ip_list = c_ip.most_common(3)
 
     top_time_list = {}
@@ -62,10 +58,13 @@ def pars_log(filename):
     c_time = Counter(top_time_list)
     top_time_list = dict(c_time.most_common(3))
 
-    if "\\" in filename:
+    if "\\" or "/" in filename:
         path_head = os.path.split(filename)[0]
         path_tail = os.path.split(filename)[1]
-        result_json = f"{path_head}\\result_for_{path_tail}.json"
+        if "/" in filename:
+            result_json = f"{path_head}/result_for_{path_tail}.json"
+        else:
+            result_json = f"{path_head}\\result_for_{path_tail}.json"
     else:
         result_json = f"result_for_{filename}.json"
 
@@ -77,8 +76,8 @@ def pars_log(filename):
         f.write("Top 3 long requests:\n")
         for key in top_time_list:
             f.write(json.dumps(dict_time[key], indent=4))
-        f.write("\nCounter of HTTP-requests by ip addresses:\n")
-        s = json.dumps(dict_ip, indent=4)
+        f.write("\nCounter of all HTTP-requests:\n")
+        s = json.dumps(dict_method, indent=4)
         f.write(s)
         f.close()
 
@@ -91,7 +90,7 @@ def pars_log(filename):
     for key in top_time_list:
         print(json.dumps(dict_time[key], indent=4))
     print("\nCounter of HTTP-requests by ip addresses:")
-    print(json.dumps(dict_ip, indent=4))
+    print(json.dumps(dict_method, indent=4))
 
 
 parser = argparse.ArgumentParser(description='Process access.log')
