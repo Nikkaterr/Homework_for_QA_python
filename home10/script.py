@@ -1,6 +1,4 @@
-from subprocess import (
-    run, PIPE
-)
+from subprocess import run
 import re
 from collections import defaultdict
 from datetime import datetime
@@ -22,7 +20,15 @@ for line in str_process:
     cpu = list_cpu_mem[0]
     mem = list_cpu_mem[1]
     split_line = line.split(" ")
-    name_process = split_line[len(split_line)-1]
+    for line1 in split_line[::-1]:
+        duration = re.search("\d{1,2}:\d{2}", line1)
+        if duration is not None:
+            break
+    name_process = ''
+    index = split_line.index(duration.group())+1
+    for i in range(len(split_line)):
+        if i >= index:
+            name_process += split_line[i]+' '
     dict_process[idx]["name"] = name_process[0:20]
     dict_process[idx]["cpu"] = float(cpu)
     dict_process[idx]["memory"] = float(mem)
@@ -49,13 +55,16 @@ with open(f"{current_date}-{current_time}-scan.txt", "w") as f:
     f.write("Пользовательских процессов:\n")
     for key in dict_tasks['users']:
         f.write(f"{key}: {dict_tasks['users'][key]}\n")
-    f.write(f"Всего памяти используется: {dict_tasks['total_memory']}%\n")
-    f.write(f"Всего CPU используется: {dict_tasks['total_cpu']}%\n")
+    f.write(f"Всего памяти используется: {'{:.2f}'.format(dict_tasks['total_memory'])}%\n")
+    f.write(f"Всего CPU используется: {'{:.2f}'.format(dict_tasks['total_cpu'])}%\n")
     for key in dict_process:
         if dict_process[key]['memory'] == max_mem:
-            f.write(f"Больше всего памяти использует: {dict_process[key]['name']} - {max_mem}%\n")
+            f.write(f"Больше всего памяти использует: {dict_process[key]['name']} - {'{:.2f}'.format(max_mem)}%\n")
+            break
+    for key in dict_process:
         if dict_process[key]['cpu'] == max_cpu:
-            f.write(f"Больше всего CPU использует: {dict_process[key]['name']} - {max_cpu}%\n")
+            f.write(f"Больше всего CPU использует: {dict_process[key]['name']} - {'{:.2f}'.format(max_cpu)}%\n")
+            break
 
 print("Отчёт о состоянии системы:\n")
 print(f"Пользователи системы:{list(dict_tasks['users'].keys())}\n")
@@ -63,11 +72,13 @@ print(f"Процессов запущено: {idx}\n")
 print("Пользовательских процессов:\n")
 for key in dict_tasks['users']:
     print(f"{key}: {dict_tasks['users'][key]}\n")
-print(f"Всего памяти используется: {dict_tasks['total_memory']}%\n")
-print(f"Всего CPU используется: {dict_tasks['total_cpu']}%\n")
+print(f"Всего памяти используется: {'{:.2f}'.format(dict_tasks['total_memory'])}%\n")
+print(f"Всего CPU используется: {'{:.2f}'.format(dict_tasks['total_cpu'])}%\n")
 for key in dict_process:
     if dict_process[key]['memory'] == max_mem:
         print(f"Больше всего памяти использует: {dict_process[key]['name']} - {max_mem}%\n")
+        break
+for key in dict_process:
     if dict_process[key]['cpu'] == max_cpu:
         print(f"Больше всего CPU использует: {dict_process[key]['name']} - {max_cpu}%\n")
-
+        break
