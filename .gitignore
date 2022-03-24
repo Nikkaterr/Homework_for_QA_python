@@ -125,5 +125,19 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+#allure
+allure-results/
+allure-report/
+
 # Pyre type checker
 .pyre/
+.idea/
+.venv/
+.home4/pytest_cache/
+.pytest_cache
+.Homework1/
+.home2/
+.home3/
+/home6/
+/home7/
+/home8/
