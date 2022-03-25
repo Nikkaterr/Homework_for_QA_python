@@ -79,7 +79,7 @@ def test_delete_last_product(browser):
 
 @allure.title('Регистрация нового пользователя')
 @pytest.mark.parametrize("firstname, lastname, email, telephone, password",
-                         [("Ivanov", "Ivan", "ivan@bk.ru", "1234567890", "qwerty")]
+                         [("Ivanov777", "Ivan777", "iva777n@bk.ru", "123456777790", "qwerty")]
                          )
 def test_register_new_account(browser, firstname, lastname, email, telephone, password):
     browser.open_page()
