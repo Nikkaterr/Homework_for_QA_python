@@ -102,4 +102,4 @@ def test_register_new_account(browser, firstname, lastname, email, telephone, pa
     with allure.step("Ждём далее"):
         RegisterPage(browser)._press_continue()
     with allure.step("Ждём подтверждение успешной регистрации"):
-        RegisterPage(browser)._check_successful_creating()
+        assert RegisterPage(browser)._check_successful_creating() is True
