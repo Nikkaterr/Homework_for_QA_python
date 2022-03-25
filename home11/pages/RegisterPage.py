@@ -76,5 +76,7 @@ class RegisterPage(BasePage):
         return self
 
     def _check_successful_creating(self):
-        self._element(self.CONFIRM_CREATING_ACCOUNT)
-        return self
+                if self._element(self.CONFIRM_CREATING_ACCOUNT):
+            return True
+        else:
+            return False
